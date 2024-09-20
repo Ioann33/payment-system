@@ -3,6 +3,7 @@
 namespace App\Handlers;
 
 use App\Http\Requests\PaymentRequest;
+use App\Models\PaymentModel;
 
 abstract class BasePaymentHandler
 {
@@ -27,9 +28,9 @@ abstract class BasePaymentHandler
      */
     abstract public function getRules(): array;
 
-    abstract public function submit(PaymentRequest $request);
+    abstract public function submit(PaymentRequest $request): PaymentModel;
 
     abstract protected function getPaymentBody(PaymentRequest $request): array;
 
-    abstract public function save(PaymentRequest $request);
+    abstract public function save(PaymentRequest $request): PaymentModel;
 }

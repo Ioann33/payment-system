@@ -14,7 +14,7 @@ class SecondPaymentHandler extends BasePaymentHandler
         // TODO: Implement getRules() method.
     }
 
-    public function submit(PaymentRequest $request)
+    public function submit(PaymentRequest $request): PaymentModel
     {
         // TODO: Implement submit() method.
     }
@@ -24,7 +24,7 @@ class SecondPaymentHandler extends BasePaymentHandler
         // TODO: Implement getPaymentBody() method.
     }
 
-    public function save(PaymentRequest $request)
+    public function save(PaymentRequest $request): PaymentModel
     {
         // TODO: Implement save() method.
     }
