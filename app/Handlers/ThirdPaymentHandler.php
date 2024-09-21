@@ -10,21 +10,23 @@ class ThirdPaymentHandler extends BasePaymentHandler
     public const PAYMENT_SERVICE = PaymentModel::THIRD_PAYMENT_SERVICE;
     public function getRules(): array
     {
-        // TODO: Implement getRules() method.
+        return [
+
+        ];
     }
 
     public function submit(PaymentRequest $request): PaymentModel
     {
-        // TODO: Implement submit() method.
+        return $this->save($request);
     }
 
     protected function getPaymentBody(PaymentRequest $request): array
     {
-        // TODO: Implement getPaymentBody() method.
+        return  $request->all();
     }
 
     public function save(PaymentRequest $request): PaymentModel
     {
-        // TODO: Implement save() method.
+        return new PaymentModel();
     }
 }
