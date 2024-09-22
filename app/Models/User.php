@@ -8,6 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property boolean $is_active_promo,
+ * @property float $amount
+ * @property float $bonus
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;

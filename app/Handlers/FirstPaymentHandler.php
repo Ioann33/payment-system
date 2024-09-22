@@ -4,6 +4,9 @@ namespace App\Handlers;
 
 use App\Http\Requests\PaymentRequest;
 use App\Models\PaymentModel;
+use App\Models\User;
+use App\Services\ReplenishService;
+use Illuminate\Support\Facades\DB;
 
 class FirstPaymentHandler extends BasePaymentHandler
 {
@@ -11,22 +14,45 @@ class FirstPaymentHandler extends BasePaymentHandler
     public function getRules(): array
     {
         return [
-
+            'transactionId' => 'required|string',
+            'userOrderId' => 'required|string',
+            'status' => 'required|string',
+            'amount' => 'required|string',
         ];
     }
 
     public function submit(PaymentRequest $request): PaymentModel
     {
-        return $this->save($request);
+        $this->validate($request);
+        DB::beginTransaction();
+        if ($request->get('status') === 'complete') {
+            $this->getReplenishmentService(
+                $this->getUserByOrderId(
+                    $request->get('userOrderId')
+                ),
+                $request->get('amount')
+            )->refuel()->applyPromo();
+        }
+        $payment = $this->save($request);
+        DB::commit();
+        return $payment;
     }
 
     protected function getPaymentBody(PaymentRequest $request): array
     {
-        return  $request->all();
-    }
-
-    public function save(PaymentRequest $request): PaymentModel
-    {
-        return new PaymentModel();
+        return [
+            'type' => $request->getPaymentService(),
+            'order_id' => $request->get('userOrderId'),
+            'external_id' => $request->get('transactionId'),
+            'amount' => $request->get('amount'),
+            'status' => $request->get('status'),
+            'extra_data' => [
+                'currency' => $request->get('currency'),
+                'orderCreatedAt' => $request->get('orderCreatedAt'),
+                'orderCompleteAt' => $request->get('orderCompleteAt'),
+                'hash' => $request->get('hash'),
+                'email' => $request->get('email'),
+            ],
+        ];
     }
 }

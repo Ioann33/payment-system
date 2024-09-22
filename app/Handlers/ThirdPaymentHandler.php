@@ -4,6 +4,7 @@ namespace App\Handlers;
 
 use App\Http\Requests\PaymentRequest;
 use App\Models\PaymentModel;
+use Illuminate\Support\Facades\DB;
 
 class ThirdPaymentHandler extends BasePaymentHandler
 {
@@ -11,22 +12,38 @@ class ThirdPaymentHandler extends BasePaymentHandler
     public function getRules(): array
     {
         return [
-
+            'txid' => 'required|string',
+            'order' => 'required|string',
+            'status' => 'required',
+            'usdAmount' => 'required|string',
         ];
     }
 
     public function submit(PaymentRequest $request): PaymentModel
     {
-        return $this->save($request);
+        $this->validate($request);
+        DB::beginTransaction();
+        if ($request->get('status') == 'completed') {
+            $this->getReplenishmentService(
+                $this->getUserByOrderId(
+                    $request->get('order')
+                ),
+                $request->get('usdAmount')
+            )->refuel()->applyPromo();
+        }
+        $payment = $this->save($request);
+        DB::commit();
+        return $payment;
     }
 
     protected function getPaymentBody(PaymentRequest $request): array
     {
-        return  $request->all();
-    }
-
-    public function save(PaymentRequest $request): PaymentModel
-    {
-        return new PaymentModel();
+        return [
+            'type' => $request->getPaymentService(),
+            'order_id' => $request->get('order'),
+            'external_id' => $request->get('txid'),
+            'amount' => $request->get('usdAmount'),
+            'status' => $request->get('status'),
+        ];
     }
 }

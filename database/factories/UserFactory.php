@@ -23,13 +23,12 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $promoActive = fake()->boolean();
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'amount' => rand(0, 100),
-            'is_active_promo' => $promoActive,
-            'bonus' => $promoActive ? 0.05 : 0,
+            'amount' => 0,
+            'is_active_promo' => true,
+            'bonus' => 0.05,
             'password' => static::$password ??= Hash::make('password'),
         ];
     }

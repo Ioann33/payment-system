@@ -17,10 +17,13 @@ class PaymentModel extends Model
         'external_id',
         'amount',
         'status',
-        'extra_data'
+        'extra_data',
+        'type'
     ];
 
     protected $casts = [
-      'extra_data' => 'array'
+      'extra_data' => 'array',
+      'amount' => 'float',
+      'order_id' => 'integer',
     ];
 }

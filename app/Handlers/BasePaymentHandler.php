@@ -4,10 +4,22 @@ namespace App\Handlers;
 
 use App\Http\Requests\PaymentRequest;
 use App\Models\PaymentModel;
+use App\Models\User;
+use App\Models\UserOrderModel;
+use App\Services\ReplenishService;
 
 abstract class BasePaymentHandler
 {
+
     public const PAYMENT_SERVICE = null;
+    /**
+     * @return array<string, string>
+     */
+    abstract public function getRules(): array;
+
+    abstract public function submit(PaymentRequest $request): PaymentModel;
+
+    abstract protected function getPaymentBody(PaymentRequest $request): array;
 
     public function isSupported(string $type): bool
     {
@@ -23,14 +35,18 @@ abstract class BasePaymentHandler
         return $request->validate($this->getRules());
     }
 
-    /**
-     * @return array<string, string>
-     */
-    abstract public function getRules(): array;
+    protected function getReplenishmentService(User $user, float $depositAmount): ReplenishService
+    {
+        return new ReplenishService($user, $depositAmount);
+    }
 
-    abstract public function submit(PaymentRequest $request): PaymentModel;
+    protected function getUserByOrderId(int $orderId): User
+    {
+        return UserOrderModel::query()->with('user')->findOrFail($orderId)->user;
+    }
 
-    abstract protected function getPaymentBody(PaymentRequest $request): array;
-
-    abstract public function save(PaymentRequest $request): PaymentModel;
+    public function save(PaymentRequest $request): PaymentModel
+    {
+        return PaymentModel::query()->create($this->getPaymentBody($request));
+    }
 }
